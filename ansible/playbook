@@ -1,0 +1,16 @@
+---
+
+- hosts: all
+  gather_facts: no 
+  tasks:
+   - name: Check public ip 
+     shell: dig +short myip.opendns.com @resolver1.opendns.com
+     register: vm_public_ip
+   - name: Be sure that docker container is not started
+     shell: docker rm -f test-nginx 
+     ignore_errors: yes
+   - name: Run docker nginx demo
+     shell: docker run -p32500:80 --name test-nginx -d nginxdemos/hello 
+   - name: Nginx url
+     debug:
+      msg: Check http://{{vm_public_ip.stdout}}:32500
